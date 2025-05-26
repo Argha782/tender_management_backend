@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -17,21 +19,29 @@ const userSchema = new mongoose.Schema(
       unique: true,
       lowercase: true,
     },
+    phoneNumber: {
+      type: String,
+      default: "",
+    },
     password: {
       type: String,
       required: true,
     },
-    phoneNumber: { 
-      type: String, 
-      default: "" 
+    accountVerified: {
+      type: Boolean,
+      default: false,
     },
-    department: { 
-      type: String, 
-      default: "" 
+    verificationCode: Number,
+    verificationCodeExpire: Date,
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+    department: {
+      type: String,
+      default: "",
     },
-    designation: { 
-      type: String, 
-      default: "" 
+    designation: {
+      type: String,
+      default: "",
     },
     role: {
       type: String,
@@ -39,9 +49,11 @@ const userSchema = new mongoose.Schema(
       default: "vendor", // Vendors are default users
       required: true,
     },
-    tenders:[{
-      type: String
-    }]
+    tenders: [
+      {
+        type: String,
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -58,6 +70,44 @@ userSchema.pre("save", async function (next) {
 // Password comparison method
 userSchema.methods.comparePassword = function (password) {
   return bcrypt.compare(password, this.password);
+};
+
+// Generate verification code
+userSchema.methods.generateVerificationCode = function () {
+  function generateRandomFiveDigitNumber() {
+    const firstDigit = Math.floor(Math.random() * 9) + 1;
+    const remainingDigits = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, 0);
+
+    return parseInt(firstDigit + remainingDigits);
+  }
+  const verificationCode = generateRandomFiveDigitNumber();
+  this.verificationCode = verificationCode;
+  this.verificationCodeExpire = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+  return verificationCode;
+};
+
+// Generate JWT Token
+userSchema.methods.generateToken = function () {
+  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRY,
+  });
+};
+
+// Generate Reset Password Token
+userSchema.methods.generateResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString("hex");
+
+  this.resetPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000;
+
+  return resetToken;
 };
 
 export const User = mongoose.model("User", userSchema);

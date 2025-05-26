@@ -1,12 +1,15 @@
-const express = require('express');
+import express from "express";
+import { verifyJWT, authorizeRoles } from "../middleware/auth.middleware.js";
+import {
+  createNotification,
+  getNotificationsForUser,
+  markNotificationAsRead,
+} from "../controllers/notification.controller.js";
+
 const router = express.Router();
-const notificationController = require('../controllers/notification.controller');
-const { authMiddleware } = require('../middleware/auth.middleware');
 
-// GET /api/notifications - Fetch user's notifications
-router.get('/', authMiddleware, notificationController.getMyNotifications);
+router.post("/", verifyJWT, createNotification);
+router.get("/", verifyJWT, getNotificationsForUser);
+router.patch("/:id/read", verifyJWT, markNotificationAsRead);
 
-// PATCH /api/notifications/:notificationId/read - Mark as read
-router.patch('/:notificationId/read', authMiddleware, notificationController.markAsRead);
-
-module.exports = router;
+export default router;

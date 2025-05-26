@@ -1,10 +1,11 @@
 import express from "express";
-import { verifyJWT } from "../middleware/auth.middleware.js";
+import { verifyJWT, authorizeRoles } from "../middleware/auth.middleware.js";
 import { uploadTenderDocs } from "../middleware/multer.middleware.js" 
 import { createTender, getAllTenders, getTenderById, updateTender, deleteTender, getMyTenders } from "../controllers/tender.controller.js"
 
 const router = express.Router();
 
+// router.use(verifyJWT, authorizeRoles("superadmin"));
 /**
  * @route POST /api/tenders
  * @desc Create a new tender (Admin only)
@@ -17,13 +18,14 @@ router.post("/", verifyJWT, uploadTenderDocs, createTender);
  * @desc Get all tenders
  * @access Public
  */
+// router.get("/",verifyJWT, authorizeRoles("superadmin", "tenderowner", "vendor"), getAllTenders);
 router.get("/", getAllTenders);
 /**
  * @route GET /api/tenders/my-tenders
  * @desc Get all tenders of a particular tender owner
  * @access Tender owner only
  */
-router.get("/my-tenders", verifyJWT, getMyTenders);
+router.get("/my-tenders", verifyJWT,authorizeRoles("tenderowner"), getMyTenders);
 
 /**
  * @route GET /api/tenders/:id

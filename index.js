@@ -6,6 +6,8 @@ import cookieParser from "cookie-parser";
 import tenderRoutes from "./routes/tender.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import notificationRoutes from "./routes/notification.routes.js";
+// import { removeUnverifiedAccounts } from "./automation/removeUnverifiedAccounts.js";
 
 dotenv.config();
 console.log("✅ Cloudinary Keys:", {
@@ -16,11 +18,20 @@ console.log("✅ Cloudinary Keys:", {
 
 const app = express();
 
+
 // app.use(cors());
-app.use(cors({
-  origin: "http://localhost:5173", // your Vite frontend
-  credentials: true
-}));
+// app.use(cors({
+//   origin: "http://localhost:5173", // your Vite frontend
+//   credentials: true
+// }));
+
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 
@@ -29,6 +40,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/tenders", tenderRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+// removeUnverifiedAccounts();
 
 const PORT = process.env.PORT || 5000;
 
