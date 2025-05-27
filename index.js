@@ -20,9 +20,26 @@ const app = express();
 
 
 // app.use(cors());
+
+// app.use(cors({
+//   origin: "http://localhost:5173", // your Vite frontend
+//   credentials: true
+// }));
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://tender-management-frontend-22t06qj3l-argha-sahas-projects.vercel.app"
+];
+
 app.use(cors({
-  origin: "http://localhost:5173", // your Vite frontend
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
 }));
 
 // app.use(
