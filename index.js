@@ -20,18 +20,18 @@ const app = express();
 
 
 // app.use(cors());
-// app.use(cors({
-//   origin: "http://localhost:5173", // your Vite frontend
-//   credentials: true
-// }));
+app.use(cors({
+  origin: "http://localhost:5173", // your Vite frontend
+  credentials: true
+}));
 
-app.use(
-  cors({
-    origin: [process.env.FRONTEND_URL],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: [process.env.FRONTEND_URL],
+//     methods: ["GET", "POST", "PUT", "DELETE"],
+//     credentials: true,
+//   })
+// );
 
 app.use(cookieParser());
 
