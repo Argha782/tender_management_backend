@@ -268,7 +268,7 @@ export const loginUser = async (req, res, next) => {
       "+password"
     );
     if (!user) {
-      return next(new ApiError("Invalid email or password.", 400));
+      return next(new ApiError("User not found.", 400));
     }
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) {
