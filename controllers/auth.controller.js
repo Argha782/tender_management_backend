@@ -265,6 +265,7 @@ export const loginUser = async (req, res, next) => {
       return next(new ApiError("Email and password are required.", 400));
     }
     const user = await User.findOne({ email, accountVerified: true }).select(
+    // const user = await User.findOne({ email}).select(
       "+password"
     );
     if (!user) {

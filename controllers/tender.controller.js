@@ -101,18 +101,14 @@ const createTender = asyncHandler(async (req, res) => {
     createdBy: req.user._id,
   });
 
-  // Notify all vendors about the new tender
-  const vendors = await User.find({ role: "vendor" });
-  for (const vendor of vendors) {
-    await Notification.create({
-      type: "tender-update",
-      tender: tender._id,
-      sender: req.user._id,
-      receiver: vendor._id,
-      message: `New tender "${tender.tenderNo}" has been published.`,
-      method: ["in-app", "email"], // or ["in-app"]
-    });
-  }
+   await Notification.create({
+    type: "TENDER_UPDATE",
+    subject: "New Tender Published",
+    message: `A new tender "${tender.tenderNo}" has been published.`,
+    tenderId: tender._id,
+    sender: req.user._id,
+    method: ["IN_APP", "EMAIL"],
+  });
 
   return res
     .status(201)
@@ -250,18 +246,15 @@ const updateTender = asyncHandler(async (req, res) => {
     new: true,
   });
 
-  // Notify all vendors about the tender update
-  const vendors = await User.find({ role: "vendor" });
-  for (const vendor of vendors) {
-    await Notification.create({
-      type: "tender-update",
-      tender: updatedTender._id,
-      sender: req.user._id,
-      receiver: vendor._id,
-      message: `Tender "${updatedTender.tenderNo}" has been updated.`,
-      method: ["in-app", "email"],
-    });
-  }
+ await Notification.create({
+    type: "TENDER_UPDATE",
+    subject: "Tender Updated",
+    message: `Tender "${updatedTender.tenderNo}" has been updated.`,
+    tenderId: updatedTender._id,
+    sender: req.user._id,
+    method: ["IN_APP", "EMAIL"],
+  });
+
 
   res.status(200).json(updatedTender);
 });

@@ -36,6 +36,7 @@ export const createUser = asyncHandler(async (req, res) => {
     department,
     designation,
     role,
+    accountVerified: role === "vendor" ? false : true, // 🔥 This line ensures vendors are unverified, others are verified
   });
 
   await user.save();

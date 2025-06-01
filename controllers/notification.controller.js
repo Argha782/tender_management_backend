@@ -7,54 +7,53 @@ import { sendEmail } from "../utils/sendEmail.js"; // create this utility
 // CREATE Notification
 export const createNotification = async (req, res) => {
   try {
-    const {
-      tenderId,
-      receiver,
-      type,
-      subject,
-      message,
-      method = ["IN_APP"],
-    } = req.body;
-    const sender = req.user._id;
+    const { type, subject, message, tenderId, method = ["IN_APP"] } = req.body;
+    const sender = req.user;
+
+    // Role-based restrictions
+    if (sender.role === "tenderowner" && type !== "TENDER_UPDATE") {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized notification type" });
+    }
+
+    if (!["superadmin", "tenderowner"].includes(sender.role)) {
+      return res
+        .status(403)
+        .json({
+          message: "Only superadmin or tenderowner can create notifications",
+        });
+    }
 
     const notification = await Notification.create({
-      tenderId,
-      sender,
-      receiver,
+      sender: sender._id,
       type,
       subject,
       message,
+      tenderId: tenderId || null,
       method,
+      isPublic: true,
     });
 
-    // Send Email or SMS if selected
-    const recipient = await User.findById(receiver);
-
-    if (method.includes("EMAIL") && recipient.email) {
-      await sendEmail(recipient.email, subject || "Notification", message);
-    }
-
-    if (method.includes("SMS") && recipient.phone) {
-      await sendSMS(recipient.phone, message);
-    }
+    // Optional: send email/SMS logic here
 
     res.status(201).json({ success: true, notification });
   } catch (error) {
-    console.error("Notification error:", error);
+    console.error("Error creating notification:", error);
     res
       .status(500)
-      .json({ success: false, message: "Failed to send notification" });
+      .json({ success: false, message: "Failed to create notification" });
   }
 };
 
 // GET All Notifications for a User
 export const getNotificationsForUser = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const notifications = await Notification.find({ receiver: userId })
-      .populate("sender", "name role")
-      .populate("tenderId", "tenderNo")
-      .sort({ createdAt: -1 });
+    // const userId = req.user._id;
+    const notifications = await Notification.find({})
+      .sort({ createdAt: -1 })
+      .populate("sender", "name email role")
+      .populate("tenderId", "tenderNo");
 
     res.status(200).json({ success: true, notifications });
   } catch (error) {
@@ -76,5 +75,36 @@ export const markNotificationAsRead = async (req, res) => {
     res
       .status(500)
       .json({ success: false, message: "Failed to update notification" });
+  }
+};
+
+export const deleteNotification = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentUser = req.user;
+
+    const notification = await Notification.findById(id);
+    if (!notification) {
+      return res.status(404).json({ message: "Notification not found" });
+    }
+
+    // Only superadmin OR the sender of the notification can delete
+    if (
+      currentUser.role !== "superadmin" &&
+      notification.sender.toString() !== currentUser._id.toString()
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this notification" });
+    }
+
+    await notification.deleteOne();
+
+    res.status(200).json({ success: true, message: "Notification deleted" });
+  } catch (error) {
+    console.error("Error deleting notification:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to delete notification" });
   }
 };
