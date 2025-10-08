@@ -26,16 +26,16 @@ const app = express();
 //   credentials: true
 // }));
 
-// const allowedOrigins = [
-//   "http://localhost:5173",
-//   "https://tender-management-frontend-22t06qj3l-argha-sahas-projects.vercel.app"
-// ];
-
 const allowedOrigins = [
-  "http://localhost:5173", // for local React dev
-  "https://tender-management-frontend.vercel.app", // your deployed frontend
-  "https://www.tender-management-frontend.vercel.app" // optional www version
+  "http://localhost:5173", // React local dev
+  "https://tender-management-frontend-7cifh6j2h-argha-sahas-projects.vercel.app", // your deployed frontend
 ];
+
+// const allowedOrigins = [
+//   "http://localhost:5173", // for local React dev
+//   "https://tender-management-frontend.vercel.app", // your deployed frontend
+//   "https://www.tender-management-frontend.vercel.app" // optional www version
+// ];
 
 app.use(cors({
   origin: function (origin, callback) {
