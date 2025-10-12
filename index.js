@@ -28,8 +28,8 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173", // React local dev
-  "tender-management-frontend-git-main-argha-sahas-projects.vercel.app",
-  "https://tender-management-frontend-7cifh6j2h-argha-sahas-projects.vercel.app", // your deployed frontend
+  "tender-management.vercel.app",
+  "tender-management-frontend-8pa9bpms7-argha-sahas-projects.vercel.app", // your deployed frontend
 ];
 
 // const allowedOrigins = [
