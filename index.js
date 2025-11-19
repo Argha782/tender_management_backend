@@ -30,7 +30,7 @@ const allowedOrigins = [
   "http://localhost:5173", // React local dev
   "https://tender-management-frontend-three.vercel.app",
   "https://tender-management-frontend-argha-sahas-projects.vercel.app",
-  "https://tender-management-frontend-mdq47xtsj-argha-sahas-projects.vercel.app", // your deployed frontend
+  "https://tender-management-frontend-6zs9bua0t-argha-sahas-projects.vercel.app", // your deployed frontend
 ];
 
 
