@@ -33,21 +33,22 @@ const allowedOrigins = [
   "https://tender-management-frontend-fkuoedp58-argha-sahas-projects.vercel.app", // your deployed frontend
 ];
 
-// const allowedOrigins = [
-//   "http://localhost:5173", // for local React dev
-//   "https://tender-management-frontend.vercel.app", // your deployed frontend
-//   "https://www.tender-management-frontend.vercel.app" // optional www version
-// ];
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    console.log("Incoming Origin:", origin);
+
+    if (
+      !origin || 
+      allowedOrigins.includes(origin) || 
+      origin.endsWith(".vercel.app")
+    ) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("Not allowed by CORS: " + origin));
     }
   },
-  credentials: true,
+  credentials: true
 }));
 
 // app.use(
