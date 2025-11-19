@@ -29,7 +29,8 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:5173", // React local dev
   "https://tender-management-frontend-three.vercel.app/",
-  "https://tender-management-frontend-dyb3vuo87-argha-sahas-projects.vercel.app", // your deployed frontend
+  "https://tender-management-frontend-argha-sahas-projects.vercel.app/"
+  "https://tender-management-frontend-fkuoedp58-argha-sahas-projects.vercel.app/", // your deployed frontend
 ];
 
 // const allowedOrigins = [

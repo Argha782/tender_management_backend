@@ -211,7 +211,7 @@ export const verifyOTP = asyncHandler(async (req, res, next) => {
     }).sort({ createdAt: -1 });
 
     if (!userAllEntries) {
-      return next(new ApiError("User not found or already verified.", 404));
+      return next(new ApiError("User not found or account already verified.", 404));
     }
 
     const user = userAllEntries[0];
@@ -230,7 +230,7 @@ export const verifyOTP = asyncHandler(async (req, res, next) => {
 
     // Check OTP match
     if (!user.verificationCode || user.verificationCode !== Number(otp)) {
-      return next(new ApiError("Invalid OTP.", 400));
+      return next(new ApiError("Incorrect OTP. Please try again.", 400));
     }
 
     // Check OTP expiration
@@ -262,23 +262,27 @@ export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return next(new ApiError("Email and password are required.", 400));
+      // return next(new ApiError("Email and password are required.", 400));
+      return res.status(400).json({ message: "Email and password are required" });
     }
     const user = await User.findOne({ email, accountVerified: true }).select(
     // const user = await User.findOne({ email}).select(
       "+password"
     );
     if (!user) {
-      return next(new ApiError("User not found.", 400));
+      // return next(new ApiError("User not found. Please check your email.", 400));
+      return res.status(404).json({ message: "User not found" });
     }
     const isPasswordMatched = await user.comparePassword(password);
     if (!isPasswordMatched) {
-      return next(new ApiError("Invalid email or password.", 400));
+      // return next(new ApiError("Incorrect email or password. Please try again.", 400));
+       return res.status(401).json({ message: "Email or password is incorrect" })
     }
     sendToken(user, 200, "User logged in successfully.", res);
 
     // const token = generateToken(user);
     // res.status(200).json({
+    //   message: "User logged in successfully",
     //   token,
     //   user: {
     //     id: user._id,
@@ -287,6 +291,7 @@ export const loginUser = async (req, res, next) => {
     //     role: user.role,
     //     email: user.email,
     //   },
+    // });
   } catch (err) {
     console.error("Error during login:", err);
     // res.status(500).json({ message: "Login failed", error: err.message });
@@ -313,7 +318,8 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     accountVerified: true,
   });
   if (!user) {
-    return next(new ApiError("User not found.", 404));
+    // return next(new ApiError("User not found.", 404));
+    return res.status(404).json({ message: "User not found" });
   }
   const resetToken = user.generateResetPasswordToken();
   await user.save({ validateBeforeSave: false });
